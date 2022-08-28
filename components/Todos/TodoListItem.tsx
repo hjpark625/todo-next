@@ -12,26 +12,23 @@ interface StyleProps {
 
 interface TodoListItemProps {
   items: ITodos;
-  setTodos: React.Dispatch<
-    React.SetStateAction<
-      {
-        id: number;
-        todo: string;
-        isDone: boolean;
-      }[]
-    >
-  >;
+  onRemove: (id: number) => void;
+  onEdit: (
+    e: React.FormEvent<HTMLFormElement>,
+    id: number,
+    editTodo: string,
+  ) => void;
 }
 
-const TodoListItem = ({ items, setTodos }: TodoListItemProps) => {
-  const [isDone, setIsDone] = useState(false);
+const TodoListItem = ({ items, onRemove, onEdit }: TodoListItemProps) => {
+  const [isDone, setIsDone] = useState(items.checked);
   const [isEdit, setIsEdit] = useState(false);
   const [editTodo, setEditTodo] = useState(items.todo);
 
-  const editSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const { todo, id } = items;
 
-    setIsEdit(false);
+  const getDoneTodo = () => {
+    setIsDone((prev) => !prev);
   };
 
   const saveEditTodoText = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,21 +39,22 @@ const TodoListItem = ({ items, setTodos }: TodoListItemProps) => {
     <TodoListItemWrapper>
       <CheckBox
         isDone={isDone}
-        // onClick={() => {
-        //   getDoneTodo();
-        // }}
+        onClick={() => {
+          getDoneTodo();
+        }}
       >
         {isDone ? (
           <FontAwesomeIcon icon={faSquareCheck} />
         ) : (
           <FontAwesomeIcon icon={faSquare} />
         )}
-        {isEdit || <Text isDone={isDone}>{items.todo}</Text>}
+        {isEdit || <Text isDone={isDone}>{todo}</Text>}
       </CheckBox>
       {isEdit && (
         <EditForm
           onSubmit={(e) => {
-            editSubmit(e);
+            onEdit(e, id, editTodo);
+            setIsEdit(false);
           }}
         >
           <EditInput
@@ -76,11 +74,7 @@ const TodoListItem = ({ items, setTodos }: TodoListItemProps) => {
       >
         <FontAwesomeIcon icon={faPen} />
       </Edit>
-      <Remove
-      // onClick={() => {
-      //   deleteTodo();
-      // }}
-      >
+      <Remove onClick={() => onRemove(id)}>
         <FontAwesomeIcon icon={faTrashCan} />
       </Remove>
     </TodoListItemWrapper>

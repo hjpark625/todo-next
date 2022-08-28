@@ -1,40 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
-function TodoInsert({
-  setTodos,
-}: {
-  setTodos: React.Dispatch<
-    React.SetStateAction<
-      {
-        id: number;
-        todo: string;
-        isDone: boolean;
-      }[]
-    >
-  >;
-}) {
+interface TodoInsertProps {
+  onInsert: (text: string) => void;
+}
+
+function TodoInsert({ onInsert }: TodoInsertProps) {
   const [todoValue, setTodoValue] = useState('');
 
-  const getInputValue = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let { value } = e.target;
-    setTodoValue(value);
-  };
+  const getInputValue = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setTodoValue(e.target.value);
+    },
+    [],
+  );
+
+  const onSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      onInsert(todoValue);
+      setTodoValue('');
+      e.preventDefault();
+    },
+    [onInsert, todoValue],
+  );
 
   return (
-    <TodoInsertForm
-    // onSubmit={e => {
-    //   onSubmit(e);
-    // }}
-    >
+    <TodoInsertForm onSubmit={onSubmit}>
       <TodoInput
         placeholder="할 일을 입력하세요"
         value={todoValue}
-        onChange={(e) => {
-          getInputValue(e);
-        }}
+        onChange={getInputValue}
       />
       <AddButton type="submit">
         <FontAwesomeIcon icon={faPlus} />

@@ -6,30 +6,36 @@ import palette from '../../styles/palette';
 export interface ITodos {
   id: number;
   todo: string;
-  isDone: boolean;
+  checked: boolean;
 }
 interface TodosProps {
   todos: ITodos[];
-  setTodos: React.Dispatch<
-    React.SetStateAction<
-      {
-        id: number;
-        todo: string;
-        isDone: boolean;
-      }[]
-    >
-  >;
+  onRemove: (id: number) => void;
+  onEdit: (
+    e: React.FormEvent<HTMLFormElement>,
+    id: number,
+    editTodo: string,
+  ) => void;
 }
 
-function TodoList({ todos, setTodos }: TodosProps) {
+function TodoList({ todos, onRemove, onEdit }: TodosProps) {
   return (
     <TodoListWrapper>
-      {todos.length === 0 && (
+      {todos.length === 1 && (
         <EmptyTodos>해야 할 일 들을 채워주세요!</EmptyTodos>
       )}
-      {todos.map((todo) => (
-        <TodoListItem items={todo} key={todo.id} setTodos={setTodos} />
-      ))}
+      {todos
+        .map((todo) => {
+          return (
+            <TodoListItem
+              items={todo}
+              key={todo.id}
+              onRemove={onRemove}
+              onEdit={onEdit}
+            />
+          );
+        })
+        .slice(1)}
     </TodoListWrapper>
   );
 }
