@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import styled from 'styled-components';
 import palette from '../../styles/palette';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,6 +25,11 @@ const TodoListItem = ({ items, onRemove, onEdit }: TodoListItemProps) => {
   const [isEdit, setIsEdit] = useState(false);
   const [editTodo, setEditTodo] = useState(items.todo);
 
+  const editRef = useRef<HTMLInputElement | null>(null);
+  useLayoutEffect(() => {
+    if (editRef.current !== null) return editRef.current.focus();
+  });
+
   const { todo, id } = items;
 
   const getDoneTodo = () => {
@@ -37,12 +42,7 @@ const TodoListItem = ({ items, onRemove, onEdit }: TodoListItemProps) => {
   };
   return (
     <TodoListItemWrapper>
-      <CheckBox
-        isDone={isDone}
-        onClick={() => {
-          getDoneTodo();
-        }}
-      >
+      <CheckBox isDone={isDone} onClick={getDoneTodo}>
         {isDone ? (
           <FontAwesomeIcon icon={faSquareCheck} />
         ) : (
@@ -60,6 +60,7 @@ const TodoListItem = ({ items, onRemove, onEdit }: TodoListItemProps) => {
           <EditInput
             type="text"
             value={editTodo}
+            ref={editRef}
             onChange={(e) => {
               saveEditTodoText(e);
             }}

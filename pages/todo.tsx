@@ -31,12 +31,13 @@ const Todo = () => {
 
   const onEdit = useCallback(
     (e: React.FormEvent<HTMLFormElement>, id: number, editTodo: string) => {
+      e.preventDefault();
+      if (!editTodo) return alert('빈 칸으로 수정할 수 없습니다.');
       setTodos(
         todos.map((todo) =>
           todo.id === id ? { ...todo, todo: editTodo } : todo,
         ),
       );
-      e.preventDefault();
     },
     [todos],
   );

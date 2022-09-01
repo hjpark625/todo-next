@@ -19,9 +19,10 @@ function TodoInsert({ onInsert }: TodoInsertProps) {
 
   const onSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!todoValue) return alert('내용을 넣어주세요');
       onInsert(todoValue);
       setTodoValue('');
-      e.preventDefault();
     },
     [onInsert, todoValue],
   );
