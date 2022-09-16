@@ -10,7 +10,7 @@ interface TodoInsertProps {
 function TodoInsert({ onInsert }: TodoInsertProps) {
   const [todoValue, setTodoValue] = useState('');
 
-  const getInputValue = useCallback(
+  const saveInputValue = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setTodoValue(e.target.value);
     },
@@ -32,7 +32,7 @@ function TodoInsert({ onInsert }: TodoInsertProps) {
       <TodoInput
         placeholder="할 일을 입력하세요"
         value={todoValue}
-        onChange={getInputValue}
+        onChange={saveInputValue}
       />
       <AddButton type="submit">
         <FontAwesomeIcon icon={faPlus} />
