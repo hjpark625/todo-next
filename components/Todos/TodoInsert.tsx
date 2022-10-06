@@ -1,18 +1,30 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { changeField } from '../../store/todos';
 
 interface TodoInsertProps {
   onInsert: (text: string) => void;
 }
 
+interface IState {
+  todos: {
+    value: string;
+    edit_value: string;
+    todos: { id: number; text: string; checked: boolean }[];
+  };
+}
+
 function TodoInsert({ onInsert }: TodoInsertProps) {
-  const [todoValue, setTodoValue] = useState('');
+  const dispatch = useDispatch();
+
+  const todoValue = useSelector((state: IState) => state.todos.value);
 
   const saveInputValue = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTodoValue(e.target.value);
+      dispatch(changeField(e.target.value));
     },
     [],
   );
@@ -22,7 +34,7 @@ function TodoInsert({ onInsert }: TodoInsertProps) {
       e.preventDefault();
       if (!todoValue) return alert('내용을 넣어주세요');
       onInsert(todoValue);
-      setTodoValue('');
+      dispatch(changeField(''));
     },
     [onInsert, todoValue],
   );

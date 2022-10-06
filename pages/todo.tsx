@@ -1,43 +1,52 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import Head from 'next/head';
 import TodoInsert from '../components/Todos/TodoInsert';
 import TodoList from '../components/Todos/TodoList';
 import TodoTemplate from '../components/Todos/TodoTemplate';
+import { useSelector, useDispatch } from 'react-redux';
+import { addTodo, deleteTodo, editTodo, checkTodo } from '../store/todos';
+
+interface IState {
+  todos: {
+    value: string;
+    edit_value: string;
+    todos: { id: number; text: string; checked: boolean }[];
+  };
+}
 
 const Todo = () => {
-  const [todos, setTodos] = useState(TODO_DATA);
+  const dispatch = useDispatch();
 
   const nextId = useRef(1);
 
+  const todos = useSelector((state: IState) => state.todos.todos);
+
   const onInsert = useCallback(
     (text: string) => {
-      const todo = {
-        id: nextId.current,
-        todo: text,
-        checked: false,
-      };
-      setTodos(todos.concat(todo));
-      nextId.current += 1;
+      dispatch(addTodo(text, nextId));
+      nextId.current++;
     },
     [todos],
   );
 
   const onRemove = useCallback(
     (id: number) => {
-      setTodos(todos.filter((todo) => todo.id !== id));
+      dispatch(deleteTodo(id));
     },
     [todos],
   );
 
   const onEdit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>, id: number, editTodo: string) => {
+    (e: React.FormEvent<HTMLFormElement>, edit_value: string, id: number) => {
       e.preventDefault();
-      if (!editTodo) return alert('빈 칸으로 수정할 수 없습니다.');
-      setTodos(
-        todos.map((todo) =>
-          todo.id === id ? { ...todo, todo: editTodo } : todo,
-        ),
-      );
+      dispatch(editTodo(edit_value, id));
+    },
+    [todos],
+  );
+
+  const onCheck = useCallback(
+    (checked: boolean, id: number) => {
+      dispatch(checkTodo(checked, id));
     },
     [todos],
   );
@@ -50,18 +59,15 @@ const Todo = () => {
 
       <TodoTemplate>
         <TodoInsert onInsert={onInsert} />
-        <TodoList todos={todos} onRemove={onRemove} onEdit={onEdit} />
+        <TodoList
+          todos={todos}
+          onRemove={onRemove}
+          onEdit={onEdit}
+          onCheck={onCheck}
+        />
       </TodoTemplate>
     </>
   );
 };
-
-const TODO_DATA = [
-  {
-    id: 0,
-    todo: '',
-    checked: false,
-  },
-];
 
 export default Todo;
