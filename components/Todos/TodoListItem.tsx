@@ -1,10 +1,12 @@
 import React, { useState, useRef, useLayoutEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import palette from '../../styles/palette';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { faPen, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { ITodos } from './TodoList';
+import { editChange } from '../../store/todos';
+import { RootState, ITodos } from '../../types/todos.type';
 
 interface StyleProps {
   isDone: boolean | null;
@@ -15,45 +17,61 @@ interface TodoListItemProps {
   onRemove: (id: number) => void;
   onEdit: (
     e: React.FormEvent<HTMLFormElement>,
+    edit_value: string,
     id: number,
-    editTodo: string,
   ) => void;
+  onCheck: (checked: boolean, id: number) => void;
 }
 
-const TodoListItem = ({ items, onRemove, onEdit }: TodoListItemProps) => {
-  const [isDone, setIsDone] = useState(items.checked);
+interface IState {
+  todos: RootState;
+}
+
+const TodoListItem = ({
+  items,
+  onRemove,
+  onEdit,
+  onCheck,
+}: TodoListItemProps) => {
+  const dispatch = useDispatch();
+
   const [isEdit, setIsEdit] = useState(false);
-  const [editTodo, setEditTodo] = useState(items.todo);
+
+  const editTodo = useSelector((state: IState) => state.todos.edit_value);
+
+  const { text, id, checked } = items;
 
   const editRef = useRef<HTMLInputElement | null>(null);
+
+  const saveEditTodoText = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    dispatch(editChange(value));
+  };
+
   useLayoutEffect(() => {
     if (editRef.current !== null) return editRef.current.focus();
   });
 
-  const { todo, id } = items;
-
-  const getDoneTodo = () => {
-    setIsDone((prev) => !prev);
-  };
-
-  const saveEditTodoText = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setEditTodo(value);
-  };
   return (
     <TodoListItemWrapper>
-      <CheckBox isDone={isDone} onClick={getDoneTodo}>
-        {isDone ? (
+      <CheckBox
+        isDone={checked}
+        onClick={() => {
+          onCheck(checked, id);
+        }}
+      >
+        {checked ? (
           <FontAwesomeIcon icon={faSquareCheck} />
         ) : (
           <FontAwesomeIcon icon={faSquare} />
         )}
-        {isEdit || <Text isDone={isDone}>{todo}</Text>}
+        {isEdit || <Text isDone={checked}>{text}</Text>}
       </CheckBox>
       {isEdit && (
         <EditForm
           onSubmit={(e) => {
-            onEdit(e, id, editTodo);
+            onEdit(e, editTodo, id);
+            dispatch(editChange(''));
             setIsEdit(false);
           }}
         >
@@ -61,6 +79,7 @@ const TodoListItem = ({ items, onRemove, onEdit }: TodoListItemProps) => {
             type="text"
             value={editTodo}
             ref={editRef}
+            placeholder="수정할 텍스트를 입력해주세요"
             onChange={(e) => {
               saveEditTodoText(e);
             }}
@@ -68,7 +87,7 @@ const TodoListItem = ({ items, onRemove, onEdit }: TodoListItemProps) => {
         </EditForm>
       )}
       <Edit
-        isDone={isDone}
+        isDone={checked}
         onClick={() => {
           setIsEdit((prev) => !prev);
         }}
