@@ -5,13 +5,10 @@ import TodoList from '../components/Todos/TodoList';
 import TodoTemplate from '../components/Todos/TodoTemplate';
 import { useSelector, useDispatch } from 'react-redux';
 import { addTodo, deleteTodo, editTodo, checkTodo } from '../store/todos';
+import { RootState } from '../types/todos.type';
 
 interface IState {
-  todos: {
-    value: string;
-    edit_value: string;
-    todos: { id: number; text: string; checked: boolean }[];
-  };
+  todos: RootState;
 }
 
 const Todo = () => {

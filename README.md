@@ -9,16 +9,16 @@
 
 ## 🌈 프로젝트 실행 방법
 
-    $ git clone https://github.com/hjpark625/todo-next.git
-    $ cd todo-next
-    $ yarn install
-    $ yarn start
+    git clone https://github.com/hjpark625/todo-next.git
+    cd todo-next
+    yarn install
+    yarn start
 
 ---
 
 ## ⭐ 배포 링크
 
-> https://hjpark625.github.io/todo-next/
+> <https://hjpark625.github.io/todo-next/>
 
 ---
 
@@ -27,7 +27,9 @@
 ![next](https://img.shields.io/badge/Next.js-12.2.5-FFFFFF?logo=next.js)
 ![react](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)
 ![typescript](https://img.shields.io/badge/TypeScript-4.8.2-3178C6?logo=typescript)
-![styledComponents](https://img.shields.io/badge/Styled--Components-5.3.5-DB7093?logo=styledcomponents)
+![styledComponents](https://img.shields.io/badge/Styled--Components-5.3.5-DB7093?logo=styledcomponents)  
+![redux](https://img.shields.io/badge/redux-4.2.0-pink?logo=redux)
+![react-redux](https://img.shields.io/badge/react--redux-8.0.2-pink?logo=redux)
 
 - **선정 이유**
   - _Next.js_
@@ -41,6 +43,9 @@
   - _TypeScript_
     - 정적 타입 지원하므로 컴파일 단계에서 오류를 사전에 포착할 수 있으며 이를 통해 미리 디버깅이 가능하다.
       - 개발 간 개발자의 휴먼 에러를 미리 감지하여 추후 배포 시에 문제를 사전적으로 차단하는데 효과적이다.
+  - _Redux_ / _React-Redux_
+    - 전역상태 관리하는데 있어 표준적으로 사용되는 라이브러리이다.
+    - FLUX패턴으로 데이터 흐름의 단방향성을 추구하여 추후 에러발생 시 에러의 원인을 파악하는데 쉽고 유지보수에 매우 탄력적이다.
   - _Styled-Components_
     - CSS-in-JS는 짧은 길이의 유니크한 클래스를 자동적으로 생성하기에 코드 경량화에 효과적이다.
     - 컴포넌트 기반 개발 방법에 적합하고 가장 많이 사용되는 CSS-in-JS 라이브러리
@@ -73,8 +78,10 @@
     |   |-- index.tsx
     |   |-- todo.tsx
     |-- styles
-        |-- GlobalStyle.tsx
-        |-- palette.ts
+    |   |-- GlobalStyle.tsx
+    |   |-- palette.ts
+    |-- store
+    |-- types
 
 ---
 
@@ -96,6 +103,26 @@
       [],
     );
     ```
+
+  - **위의 코드를 `Redux`로 변경한다면...**
+
+    ```ts
+    /* TodoInsert.tsx */
+    const saveInputValue = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        dispatch(changeField(e.target.value));
+      },
+      [],
+    );
+
+    /* todos.ts */
+    export const changeField = (value: string) => ({
+      type: CHANGE_FIELD,
+      value,
+    });
+    ```
+
+    - 기존에 setState를 활용해 value를 저장했다면 `dispatch`함수를 활용해 `todos.ts`에 있는 액션생성함수인 `changeField`를 `e.target.value`를 payload에 담아 실행시킨다.
 
   - 저장된 value를 추가 버튼을 눌렀을 때 todo.tsx에서 props로 내려주는 `onInsert`함수에 포함시켜 submit
 
@@ -129,9 +156,34 @@
     ];
     ```
 
+  - **위의 코드를 `Redux`로 변경한다면...**
+
+    ```ts
+    /* todo.tsx */
+    const nextId = useRef(1);
+
+    const onInsert = useCallback(
+      (text: string) => {
+        dispatch(addTodo(text, nextId));
+        nextId.current++; // Todo가 추가되면 1씩 더하기
+      },
+      [todos],
+    );
+
+    /* todos.ts */
+    export const addTodo = (
+      inputValue: string,
+      nextId: React.MutableRefObject<number>,
+    ) => ({
+      type: ADD_TODO,
+      nextId, // 새로들어온 id값
+      inputValue, // changeField 함수로 저장된 e.target.value값
+    });
+    ```
+
 - **Todo 리스트 불러오기(Read)**
 
-  - todo.tsx에서 `TODO_DATA`를 props로 TodoList.tsx로 전달 후 `map`을 이용해 상수데이터 렌더링
+  - todo.tsx에서 `useSelector`를 활용해 배열로 만들어진 `todos`를 props로 TodoList.tsx로 전달 후 `map`을 이용해 저장된 데이터들을 렌더링
 
 - **Todo 수정하기(Update)**
 
@@ -139,12 +191,14 @@
     - 수정버튼 클릭할 땐 `boolean`값을 가진 isEdit이라는 state를 활용
   - Create할때와 마찬가지로 edit input창의 입력되는 string을 state에 저장
   - 수정버튼 클릭 시 input창에 focus되도록 `useRef`와 `useLayoutEffect`를 활용해서 구현
+
     ```ts
     const editRef = useRef<HTMLInputElement | null>(null);
     useLayoutEffect(() => {
       if (editRef.current !== null) return editRef.current.focus();
     });
     ```
+
   - todo.tsx에서 `onEdit`함수를 제작해 props로 전달
 
     ```ts
@@ -164,5 +218,35 @@
 
     - 수정 후 엔터를 쳤을 때 submit으로 새롭게 수정되는 텍스트를 todos에 반영하고 수정된 텍스트를 재렌더링
 
+  - **위의 코드를 `Redux`로 변경한다면...**
+
+    ```ts
+    /* todo.tsx */
+    const onEdit = useCallback(
+      (e: React.FormEvent<HTMLFormElement>, edit_value: string, id: number) => {
+        e.preventDefault();
+        dispatch(editTodo(edit_value, id));
+      },
+      [todos],
+    );
+
+    /* todos.ts */
+    export const editTodo = (edit_value: string, id: number) => ({
+      type: EDIT_TODO,
+      edit_value,
+      id,
+    });
+    ```
+
 - **Todo 리스트 삭제하기(Delete)**
+
   - `filter`메소드를 활용해서 클릭히면 클릭 된 todo의 id와 해당 todo의 id를 비교하여 일치하는 것 제외한 나머지 todo들을 뽑아내고 나머지 Todo 리스트들을 재렌더링
+
+    ```ts
+    const onRemove = useCallback(
+      (id: number) => {
+        dispatch(deleteTodo(id));
+      },
+      [todos],
+    );
+    ```
