@@ -42,8 +42,8 @@ const Todo = () => {
   );
 
   const onCheck = useCallback(
-    (checked: boolean, id: number) => {
-      dispatch(checkTodo(checked, id));
+    (id: number) => {
+      dispatch(checkTodo(id));
     },
     [todos],
   );

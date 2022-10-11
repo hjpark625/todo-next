@@ -20,7 +20,7 @@ interface TodoListItemProps {
     edit_value: string,
     id: number,
   ) => void;
-  onCheck: (checked: boolean, id: number) => void;
+  onCheck: (id: number) => void;
 }
 
 interface IState {
@@ -57,7 +57,7 @@ const TodoListItem = ({
       <CheckBox
         isDone={checked}
         onClick={() => {
-          onCheck(checked, id);
+          onCheck(id);
         }}
       >
         {checked ? (

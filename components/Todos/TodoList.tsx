@@ -12,7 +12,7 @@ interface TodosProps {
     edit_value: string,
     id: number,
   ) => void;
-  onCheck: (checked: boolean, id: number) => void;
+  onCheck: (id: number) => void;
 }
 
 function TodoList({ todos, onRemove, onEdit, onCheck }: TodosProps) {

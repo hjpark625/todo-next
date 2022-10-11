@@ -24,9 +24,8 @@ export const addTodo = (
   inputValue,
 });
 export const deleteTodo = (id: number) => ({ type: DELETE_TODO, id });
-export const checkTodo = (checked: boolean, id: number) => ({
+export const checkTodo = (id: number) => ({
   type: CHECK_TODO,
-  checked,
   id,
 });
 export const editTodo = (edit_value: string, id: number) => ({
