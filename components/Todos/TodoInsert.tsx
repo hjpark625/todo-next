@@ -3,24 +3,17 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store';
 import { changeField } from '../../store/todos';
 
 interface TodoInsertProps {
   onInsert: (text: string) => void;
 }
 
-interface IState {
-  todos: {
-    value: string;
-    edit_value: string;
-    todos: { id: number; text: string; checked: boolean }[];
-  };
-}
-
 function TodoInsert({ onInsert }: TodoInsertProps) {
   const dispatch = useDispatch();
 
-  const todoValue = useSelector((state: IState) => state.todos.value);
+  const todoValue = useSelector((state: RootState) => state.todos.value);
 
   const saveInputValue = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import Link from 'next/link';
-import palette from '../../styles/palette';
 
 interface TodoTemplateProps {
-  children: JSX.Element | React.ReactElement | React.ReactNode;
+  children: React.ReactNode;
 }
 
 const TodoTemplate = ({ children }: TodoTemplateProps) => {

@@ -4,7 +4,7 @@ export interface ITodos {
   checked: boolean;
 }
 
-export interface RootState {
+export interface IInitialState {
   value: string;
   edit_value: string;
   todos: { id: number; text: string; checked: boolean }[];

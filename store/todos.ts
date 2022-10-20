@@ -1,4 +1,5 @@
-import { RootState, ActionType } from '../types/todos.type';
+import { createAction, createReducer } from '@reduxjs/toolkit';
+import { IInitialState } from '../types/todos.type';
 
 const CHANGE_FIELD = 'todo/CHANGE_FIELD';
 const EDIT_CHANGE = 'todo/EDIT_CHANGE';
@@ -7,82 +8,68 @@ const DELETE_TODO = 'todo/DELETE_TODO';
 const CHECK_TODO = 'todo/CHECK_TODO';
 const EDIT_TODO = 'todo/EDIT_TODO';
 
-export const changeField = (value: string) => ({
-  type: CHANGE_FIELD,
-  value,
-});
-export const editChange = (edit_value: string) => ({
-  type: EDIT_CHANGE,
-  edit_value,
-});
-export const addTodo = (
-  inputValue: string,
-  nextId: React.MutableRefObject<number>,
-) => ({
-  type: ADD_TODO,
-  nextId,
-  inputValue,
-});
-export const deleteTodo = (id: number) => ({ type: DELETE_TODO, id });
-export const checkTodo = (id: number) => ({
-  type: CHECK_TODO,
-  id,
-});
-export const editTodo = (edit_value: string, id: number) => ({
-  type: EDIT_TODO,
-  edit_value,
-  id,
-});
+export const changeField = createAction(CHANGE_FIELD, (value: string) => ({
+  payload: value,
+}));
+export const editChange = createAction(EDIT_CHANGE, (edit_value: string) => ({
+  payload: edit_value,
+}));
+export const addTodo = createAction(
+  ADD_TODO,
+  (input_value: string, nextId: React.MutableRefObject<number>) => ({
+    payload: { input_value, nextId },
+  }),
+);
+export const deleteTodo = createAction(DELETE_TODO, (id: number) => ({
+  payload: id,
+}));
+export const checkTodo = createAction(CHECK_TODO, (id: number) => ({
+  payload: id,
+}));
+export const editTodo = createAction(
+  EDIT_TODO,
+  (edit_value: string, id: number) => ({ payload: { edit_value, id } }),
+);
 
-const initialState: RootState = {
+const initialState: IInitialState = {
   value: '',
   edit_value: '',
   todos: [],
 };
 
-const todos = (state = initialState, action: ActionType) => {
-  switch (action.type) {
-    case CHANGE_FIELD:
-      return {
-        ...state,
-        value: action.value,
-      };
-    case EDIT_CHANGE:
-      return {
-        ...state,
-        edit_value: action.edit_value,
-      };
-    case ADD_TODO:
-      return {
-        ...state,
-        todos: state.todos.concat({
-          id: action.nextId.current,
-          text: action.inputValue,
-          checked: false,
-        }),
-      };
-    case DELETE_TODO:
-      return {
-        ...state,
-        todos: state.todos.filter((todo) => todo.id !== action.id),
-      };
-    case CHECK_TODO:
-      return {
-        ...state,
-        todos: state.todos.map((todo) =>
-          todo.id === action.id ? { ...todo, checked: !todo.checked } : todo,
-        ),
-      };
-    case EDIT_TODO:
-      return {
-        ...state,
-        todos: state.todos.map((todo) =>
-          todo.id === action.id ? { ...todo, text: action.edit_value } : todo,
-        ),
-      };
-    default:
-      return state;
-  }
-};
+const todos = createReducer(initialState, {
+  [CHANGE_FIELD]: (state, { payload }) => ({
+    ...state,
+    value: payload,
+  }),
+  [EDIT_CHANGE]: (state, { payload }) => ({
+    ...state,
+    edit_value: payload,
+  }),
+  [ADD_TODO]: (state, { payload }) => ({
+    ...state,
+    todos: state.todos.concat({
+      id: payload.nextId.current,
+      text: payload.input_value,
+      checked: false,
+    }),
+  }),
+  [DELETE_TODO]: (state, { payload }) => ({
+    ...state,
+    todos: state.todos.filter((todo) => todo.id !== payload),
+  }),
+  [CHECK_TODO]: (state, { payload }) => ({
+    ...state,
+    todos: state.todos.map((todo) =>
+      todo.id === payload ? { ...todo, checked: !todo.checked } : todo,
+    ),
+  }),
+  [EDIT_TODO]: (state, { payload }) => ({
+    ...state,
+    todos: state.todos.map((todo) =>
+      todo.id === payload.id ? { ...todo, text: payload.edit_value } : todo,
+    ),
+  }),
+});
 
 export default todos;

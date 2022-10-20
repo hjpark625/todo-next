@@ -1,17 +1,16 @@
 import type { AppProps } from 'next/app';
-import GlobalStyle from '../styles/GlobalStyle';
-import { applyMiddleware, createStore } from 'redux';
+import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { createLogger } from 'redux-logger';
-import { composeWithDevTools } from 'redux-devtools-extension';
 import rootReducer from '../store/index';
+import GlobalStyle from '../styles/GlobalStyle';
 
 const logger = createLogger();
 
-const store = createStore(
-  rootReducer,
-  composeWithDevTools(applyMiddleware(logger)),
-);
+const store = configureStore({
+  reducer: rootReducer,
+  middleware: [logger] as const,
+});
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

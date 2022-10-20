@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { faPen, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import { editChange } from '../../store/todos';
-import { RootState, ITodos } from '../../types/todos.type';
+import { ITodos } from '../../types/todos.type';
+import { RootState } from '../../store';
 
 interface StyleProps {
   isDone: boolean | null;
@@ -23,10 +24,6 @@ interface TodoListItemProps {
   onCheck: (id: number) => void;
 }
 
-interface IState {
-  todos: RootState;
-}
-
 const TodoListItem = ({
   items,
   onRemove,
@@ -37,7 +34,7 @@ const TodoListItem = ({
 
   const [isEdit, setIsEdit] = useState(false);
 
-  const editTodo = useSelector((state: IState) => state.todos.edit_value);
+  const editTodo = useSelector((state: RootState) => state.todos.edit_value);
 
   const { text, id, checked } = items;
 
