@@ -9,7 +9,7 @@ const logger = createLogger();
 
 const store = configureStore({
   reducer: rootReducer,
-  middleware: [logger] as const,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });
 
 function MyApp({ Component, pageProps }: AppProps) {
